@@ -7,10 +7,14 @@ This project uses the **standard Robosuite Lift environment** with the Panda rob
 - **Robot**: Panda
 - **Control**: Joint velocity control (default)
 - **Observation**: Proprioceptive state (no camera)
+- **Reward**: Dense rewards (`reward_shaping=True`) for better learning
 
 ## Files
 - `train_sac_lift.py`: Main training script with SAC
+- `evaluate_model.py`: Evaluate trained model
 - `test_env.py`: Test the robosuite environment setup
+- `Lift-Panda_sac_best.pth`: Best trained model checkpoint
+- `Lift-Panda_sac_best.pth.backup`: Backup of previous model
 
 ## Usage
 
@@ -24,6 +28,11 @@ python test_env.py
 python train_sac_lift.py
 ```
 
+### Evaluate trained model:
+```bash
+python evaluate_model.py
+```
+
 ## Configuration
 The training script uses these default parameters:
 - Buffer size: 100,000
@@ -32,5 +41,15 @@ The training script uses these default parameters:
 - Batch size: 256
 - Epochs: 100
 - Steps per epoch: 10,000
+- **Reward shaping: Enabled** (provides dense rewards for learning)
 
 You can modify these in the `main()` function of `train_sac_lift.py`.
+
+## Important Notes
+
+⚠️ **Reward Shaping**: This project uses `reward_shaping=True` in the environment configuration. This provides dense rewards that give continuous feedback during training (reaching, grasping, lifting), making it feasible for RL algorithms to learn. Without reward shaping, the environment only returns reward=1 on success and 0 otherwise, which is extremely difficult to learn from scratch.
+
+Expected rewards during training:
+- Early epochs: 0.5 - 2.0
+- Mid training: 2.0 - 10.0
+- Successful task completion: 10.0+

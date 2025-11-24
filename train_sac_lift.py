@@ -61,7 +61,7 @@ class RobosuiteWrapper(gym.Env):
 
 
 def make_robosuite_env():
-    return RobosuiteWrapper(env_name="Lift", robots="Panda")
+    return RobosuiteWrapper(env_name="Lift", robots="Panda", reward_shaping=True)
 
 
 def main():
