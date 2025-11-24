@@ -53,3 +53,106 @@ Expected rewards during training:
 - Early epochs: 0.5 - 2.0
 - Mid training: 2.0 - 10.0
 - Successful task completion: 10.0+
+
+## Visual Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Training Pipeline Flow                       │
+└─────────────────────────────────────────────────────────────────┘
+
+    ┌──────────────────┐
+    │   Initialize     │
+    │   Environment    │
+    │  (Robosuite)     │
+    │   Lift-Panda     │
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │   Create SAC     │
+    │    Agent with    │
+    │  Actor-Critic    │
+    │    Networks      │
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │   Initialize     │
+    │  Replay Buffer   │
+    │   (100k size)    │
+    └────────┬─────────┘
+             │
+             ▼
+    ╔══════════════════╗
+    ║  Training Loop   ║
+    ║  (100 epochs)    ║
+    ╚════════┬═════════╝
+             │
+      ┌──────┴──────┐
+      │             │
+      ▼             ▼
+┌──────────┐  ┌──────────┐
+│ Collect  │  │  Update  │
+│Experience│─▶│  Policy  │
+│(10k steps│  │  (SAC)   │
+└──────────┘  └─────┬────┘
+      ▲             │
+      │             │
+      └─────────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │  Save Best Model │
+    │  (if improved)   │
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │   Evaluation     │
+    │  (10 episodes)   │
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │  Trained Model   │
+    │  (.pth file)     │
+    └──────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                    Environment Interaction                      │
+└─────────────────────────────────────────────────────────────────┘
+
+    State (Robot & Cube)
+           │
+           ▼
+    ┌──────────────────┐
+    │   Actor Network  │
+    │  (Policy: π)     │
+    └────────┬─────────┘
+             │
+             ▼
+    Action (Joint Velocities)
+             │
+             ▼
+    ┌──────────────────┐
+    │  Robosuite Env   │
+    │   Executes       │
+    └────────┬─────────┘
+             │
+             ▼
+    Next State + Reward + Done
+             │
+             ▼
+    ┌──────────────────┐
+    │  Replay Buffer   │
+    │  (Store tuple)   │
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │ Critic Networks  │
+    │ (Q1, Q2) + α     │
+    │  Learning Step   │
+    └──────────────────┘
+```
